@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer and Text Extractor</title>
+</head>
+<body>
+    <h2>Upload a PDF file to view and extract text</h2>
+    <input type="file" id="pdf-upload" accept="application/pdf" />
+    <canvas id="pdf-canvas" style="border: 1px solid #000; margin-top: 20px;"></canvas>
+
+    <!-- Include PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>
+        document.getElementById("pdf-upload").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileReader = new FileReader();
+                fileReader.onload = function() {
+                    const typedarray = new Uint8Array(this.result);
+
+                    // Load the PDF
+                    pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                        // Render the first page on the canvas
+                        pdf.getPage(1).then(function(page) {
+                            const scale = 1.5;
+                            const viewport = page.getViewport({ scale: scale });
+
+                            const canvas = document.getElementById("pdf-canvas");
+                            const context = canvas.getContext("2d");
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+
+                            page.render({
+                                canvasContext: context,
+                                viewport: viewport
+                            });
+                        });
+
+                        // Extract and log text from all pages
+                        const pagePromises = [];
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            pagePromises.push(
+                                pdf.getPage(i).then(function(page) {
+                                    return page.getTextContent().then(function(textContent) {
+                                        return textContent.items.map(item => item.str).join(" ");
+                                    });
+                                })
+                            );
+                        }
+
+                        Promise.all(pagePromises).then(function(pagesText) {
+                            const fullText = pagesText.join("\n");
+                            console.log("Extracted PDF Text:\n", fullText);
+                            // Display extracted text on the page (optional)
+                            const textContainer = document.createElement("pre");
+                            textContainer.textContent = fullText;
+                            document.body.appendChild(textContainer);
+                        });
+                    });
+                };
+                fileReader.readAsArrayBuffer(file);
+            }
+        });
+    </script>
+</body>
+</html>

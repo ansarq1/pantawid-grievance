@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non 4p's</title>
+    <link rel="stylesheet" href="resources/styles/styles.css">
+    <!-- Add html2pdf.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container" id="content-to-pdf">
+        <div class="header">
+            <div class="logo-container">
+                <img src="resources/images/dswd.png" alt="dswd" class="dswd-icon">
+                <img src="resources/images/bagong_pilipinas.png" alt="bagong_pilipinas" class="bagong_pilipinas_icon">
+            </div>
+            <div class="fixed-code">
+                DSWD-GF-010A | REV 00 | 22 SEP 2023
+            </div>
+        </div>
+        <hr>
+        <div class="content-container">
+            <p class="content-header">CERTIFICATION OF NON-MEMBERSHIP TO
+                PANTAWID PAMILYANG PILIPINO PROGRAM (4Ps)</p>
+            <p class="content">This is to certify that the individual identified below is not, and has never been, a registered beneficiary of the Pantawid Pamilyang Pilipino Program (4Ps) under the jurisdiction of DSWD Region IX:</p>
+            <div class="details">
+                <div class="name">
+                    <p>Name:</p>
+                    <p class="client-details" id="client-name">Name Here</p>
+                </div>
+                <div class="address">
+                    <p>Address:</p>
+                    <p class="client-details" id="client-address">Address Here</p>
+                </div>
+                <div class="birthdate">
+                    <p>Date of Birth:</p>
+                    <p class="client-details" id="client-birthdate">DOB Here</p>
+                </div>
+            </div>
+            <div class="content-body">
+                <p class="content">Based on the records and thorough verification conducted by the Department of Social Welfare and Development Region IX, it is hereby confirmed that the above-named individual has no membership or enrollment history with the Pantawid Pamilyang Pilipino Program (4Ps).</p>
+                <p class="content">This certification is issued for legal and administrative purposes, including but not limited to, clarifying the individual's non-affiliation with the 4Ps program for any related transactions or verifications.</p>
+                <p class="content">This certification is valid for six (6) months from the date of issuance.</p>
+                <p class="content">Issued this <span id="date"></span> day of <span id="month"></span>, <span id="year"></span> at the Department of Social Welfare and Development Regional
+                    Office IX.</p>
+                <p class="content">IN WITNESS WHEREOF, I hereby affix my signature and the official seal of the Department of Social Welfare and Development Region IX on this document.</p>
+            </div>
+        </div>
+        <div class="signature-container">
+            <p class="officer-name">
+                FLORDELIZA A. ALAR-ATUY
+            </p>
+            <div class="position-office-container">
+                <p>Chief, 4Ps Division</p>
+                <p>DSWD Region IX</p>
+            </div>
+        </div>
+        <div class="rgo-iso-container">
+            <p>RGO|ISO</p>
+        </div>
+        <div class="time-generated-container">
+            <p>Time:</p>
+            <p id="current-timestamp">12:00:00 P.M</p>
+        </div>
+    </div>
+
+    <script>
+        const date = new Date();
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        let hours = date.getHours();
+        let amPm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const currentTime = `${hours}:${minutes} ${amPm}`;
+
+        const firstName = localStorage.getItem("firstName");
+        const lastName = localStorage.getItem("lastName");
+        const address = localStorage.getItem("address");
+        const birthdate = localStorage.getItem("birthdate");
+
+        if (birthdate) {
+            const birthDateObj = new Date(birthdate);
+            const day = birthDateObj.getDate();
+            const month = monthNames[birthDateObj.getMonth()];
+            const year = birthDateObj.getFullYear();
+            document.getElementById("client-birthdate").innerText = `${month} ${day}, ${year}`;
+        }
+
+        document.getElementById("client-name").innerText = `${firstName} ${lastName}`;
+        document.getElementById("client-address").innerText = address;
+        document.getElementById("date").innerHTML = date.getDate();
+        document.getElementById("month").innerHTML = monthNames[date.getMonth()];
+        document.getElementById("year").innerHTML = date.getFullYear();
+        document.getElementById('current-timestamp').innerText = currentTime;
+
+        // Function to generate PDF
+        function generatePDF() {
+            const element = document.getElementById('content-to-pdf');
+            const options = {
+                margin:       [10, 10, 10, 10],
+                filename:     `Non_4ps_${firstName}_${lastName}`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(options).from(element).save().then(() => {
+                // Redirect after PDF download
+                window.location.href = "index.html";
+            });
+        }
+
+        // Automatically generate PDF once the page loads
+        window.onload = generatePDF;
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /*make it 100% if the project is done*/
+    justify-content: center;
+}
+
+.header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.logo-container{
+    display: flex;
+    align-items: center;
+}
+
+.logo-container .dswd-icon{
+    width: 150px;
+    height: 70px;
+}
+
+.logo-container .bagong_pilipinas_icon{
+    height: 50px;
+}
+
+.fixed-code{
+    font-family: 'Times New Roman', Times, serif;
+    padding-right: 15px;
+}
+
+hr{
+    border: 1px solid rgb(59, 59, 59);
+    width: 100%;
+    margin-bottom: 23px;
+}
+
+.content-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    margin-bottom: 40px;
+}
+
+.content-container .content-header{
+    text-align: center;
+    width: 60%;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.content-container .content{
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.content-container .details{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    margin-left: 25%;
+    margin-bottom: 20px;
+}
+
+.content-container .details .client-details{
+    font-weight: bold;
+}
+
+.content-container .details .name, .address, .birthdate{
+    display: flex;
+    gap: 20px;
+}
+
+.signature-container{
+    font-family: Arial, Helvetica, sans-serif;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.signature-container .officer-name{
+    font-weight: bold;
+}
+
+.signature-container .position-office-container p{
+    font-size: 15px;
+}
+
+.rgo-iso-container{
+    width: 100%;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.time-generated-container{
+    width: 100%;
+    display: flex;
+    gap: 5px;
+    font-weight: bold;
+    margin-left: 40px;
+}
