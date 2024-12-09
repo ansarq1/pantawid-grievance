@@ -1,55 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-</head>
-<body>
-    <div class="container mt-5 bg-transparent border border-secondary w-50 p-5 rounded">
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <form id="dataForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="first-name" class="form-label">First Name:</label>
-                            <input type="text" placeholder="Enter First Name" class="form-control" id="first-name">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="last-name" class="form-label">Last Name:</label>
-                            <input type="text" placeholder="Enter Last Name" class="form-control" id="last-name">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="address" class="form-label">Address:</label>
-                        <input type="text" class="form-control" id="address" placeholder="Enter Address">
-                    </div>
-                    <div class="mb-3">
-                        <label for="birthdate" class="form-label">Birthday:</label>
-                        <input type="date" class="form-control" id="birthdate">
-                    </div>
-                    <button type="button" class="btn btn-primary w-100" onclick="saveData()">Submit</button>
-                </form>
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="resources/styles/login.css" />
+    <link
+      rel="shortcut icon"
+      href="resources/images/pantawid-logo.png"
+      type="image/x-icon"
+    />
+    <title>Admin | Login</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="icon-container">
+        <img src="resources/images/pantawid-logo.png" alt="PaRepair Icon" />
+        <h1>Pantawid System Unit</h1>
+      </div>
+      <div class="sign-in-container">
+        <h1>Sign In</h1>
+        <div class="input-container">
+          <div class="email-container">
+            <label for="email">Email</label>
+            <input type="text" placeholder="Enter your email" id="email-input">
+          </div>
+          <div class="password-container">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              id="password-input"
+            />
+            <span class="suffix" id="suffix-icon-show"
+              ><img src="resources/images/view.png" alt="view"
+            /></span>
+            <span class="suffix" id="suffix-icon-hide"
+              ><img src="resources/images/hide.png" alt="view"
+            /></span>
+          </div>
         </div>
+        <div class="button-container">
+          <button id="lgn-btn">Sign In</button>
+        </div>
+      </div>
     </div>
+    <div id="loading-overlay">
+      <div class="loader"></div>
+    </div>
+    <script src="resources/js/index.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
 
-    <script>
-        function saveData() {
-            const firstName = document.getElementById("first-name").value;
-            const lastName = document.getElementById("last-name").value;
-            const address = document.getElementById("address").value;
-            const birthdate = document.getElementById("birthdate").value;
+        // Your Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDRY1huushmEJq_ubTq6BtGpEwcljiqBH4",
+          authDomain: "pantawid-certificate-generator.firebaseapp.com",
+          projectId: "pantawid-certificate-generator",
+          storageBucket: "pantawid-certificate-generator.firebasestorage.app",
+          messagingSenderId: "877266176105",
+          appId: "1:877266176105:web:1d0140f22085bbdb1b3af8",
+          measurementId: "G-DJ246MXQSS",
+        };
 
-            // Save the data to localStorage
-            localStorage.setItem("firstName", firstName);
-            localStorage.setItem("lastName", lastName);
-            localStorage.setItem("address", address);
-            localStorage.setItem("birthdate", birthdate);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const analytics = getAnalytics(app);
 
-            window.location.href = "non_4ps.html";
-        }
+        const lgnBtn = document.getElementById("lgn-btn");
+
+        lgnBtn.addEventListener("click", async () => {
+          const email = document.getElementById("email-input").value.trim();
+          const password = document.getElementById("password-input").value.trim();
+
+          if (!email || !password) {
+            alert("Please enter both email and password.");
+            return;
+          }
+
+          try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            alert(`Welcome back, ${user.email}!`);
+            // Redirect to another page after successful login
+            setTimeout(() => {
+                          sessionStorage.setItem("isLoggedIn", "true");
+                          window.location.replace("generate.html");
+                        }, 1000);
+          } catch (error) {
+            console.error("Error during sign-in:", error);
+            alert(`Login failed: ${error.message}`);
+          }
+        });
+
+  // Redirect to dashboard if already logged in
+    if (sessionStorage.getItem("isLoggedIn")) {
+          window.location.href = "generate.html";
+    }
+
+
     </script>
-</body>
+  </body>
 </html>

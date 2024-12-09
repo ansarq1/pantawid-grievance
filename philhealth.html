@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Non 4p's</title>
+    <title>Philhealth</title>
     <link
       rel="shortcut icon"
       href="resources/images/pantawid-logo.png"
       type="image/x-icon"
     />
 
-    <link rel="stylesheet" href="resources/styles/non_4ps.css">
+    <link rel="stylesheet" href="resources/styles/philhealth.css">
     <!-- Add html2pdf.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 </head>
@@ -27,12 +27,12 @@
         </div>
         <hr>
         <div class="content-container">
-            <p class="content-header">CERTIFICATION OF NON-MEMBERSHIP TO
-                PANTAWID PAMILYANG PILIPINO PROGRAM (4Ps)</p>
+            <p class="content-header">CERTIFICATION OF HOUSEHOLD MEMBERSHIP WITH PANTAWID
+                PAMILYANG PILIPINO PROGRAM (4Ps) GRANTEE</p>
             <p class="content">This is to certify that the individual identified below is not, and has never been, a registered beneficiary of the Pantawid Pamilyang Pilipino Program (4Ps) under the jurisdiction of DSWD Region IX:</p>
             <div class="details">
                 <div class="name">
-                    <p>Name:</p>
+                    <p>Name of Certifying Individual:</p>
                     <p class="client-details" id="client-name">Name Here</p>
                 </div>
                 <div class="address">
@@ -42,6 +42,22 @@
                 <div class="birthdate">
                     <p>Date of Birth:</p>
                     <p class="client-details" id="client-birthdate">DOB Here</p>
+                </div>
+                <div class="nature-of-relationship">
+                    <p>Nature of Relationship:</p>
+                    <p class="client-details" id="client-nature-of-relationship">Nature of Relationship here</p>
+                </div>
+                <div class="grantee-name">
+                    <p>Name of 4Ps Grantee:</p>
+                    <p class="client-details" id="grantee-name">Grantee Name here</p>
+                </div>
+                <div class="grantee-address">
+                    <p>Adress of 4Ps Grantee:</p>
+                    <p class="client-details" id="grantee-address">Grantee Address here</p>
+                </div>
+                <div class="grantee-hh-id">
+                    <p>4Ps Household ID:</p>
+                    <p class="client-details" id="grantee-hh-id">Household ID here</p>
                 </div>
             </div>
             <div class="content-body">
@@ -77,12 +93,6 @@
         <br>
         <br>
         <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        
         <div class="footer">
             <p>PAGE 1 of 1</p>
             <hr>
@@ -109,7 +119,9 @@
         const fullName = localStorage.getItem("fullName");
         const address = localStorage.getItem("address");
         const birthdate = localStorage.getItem("birthdate");
-    
+        const nameOfGrantee = localStorage.getItem("nameOfGrantee");
+        const addressOfGrantee = localStorage.getItem("addressOfGrantee");
+        const hhIdPhilHealth = localStorage.getItem("hhIdPhilHealth");
         if (birthdate) {
             const birthDateObj = new Date(birthdate);
             const day = birthDateObj.getDate();
@@ -124,13 +136,17 @@
         document.getElementById("month").innerHTML = monthNames[date.getMonth()];
         document.getElementById("year").innerHTML = date.getFullYear();
         document.getElementById('current-timestamp').innerText = currentTime;
+        document.getElementById("grantee-name").innerText = nameOfGrantee;
+        document.getElementById("grantee-address").innerText = addressOfGrantee;
+        document.getElementById("grantee-hh-id").innerText = hhIdPhilHealth;
+
     
         // Function to generate PDF
         function generatePDF() {
             const element = document.getElementById('content-to-pdf');
             const options = {
                 margin:       [10, 15, 15, 10],
-                filename:     `Non_4ps_${fullName}.pdf`,
+                filename:     `philhealth_${fullName}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
