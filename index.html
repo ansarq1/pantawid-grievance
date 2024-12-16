@@ -87,17 +87,21 @@
             // Redirect to another page after successful login
             setTimeout(() => {
                           sessionStorage.setItem("isLoggedIn", "true");
-                          window.location.replace("generate.html");
+                          window.location.replace("dashboard.html");
                         }, 1000);
           } catch (error) {
-            console.error("Error during sign-in:", error);
-            alert(`Login failed: ${error.message}`);
+            if (error === 'FirebaseError: Firebase: Error (auth/network-request-failed)') {
+              alert('Network Error')
+            } else {
+              console.log(`${error}`);
+              alert(`${error}`)
+            }
           }
         });
 
   // Redirect to dashboard if already logged in
     if (sessionStorage.getItem("isLoggedIn")) {
-          window.location.href = "generate.html";
+          window.location.href = "dashboard.html";
     }
 
 

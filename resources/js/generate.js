@@ -3,8 +3,8 @@ import { getFirestore, addDoc, collection } from "https://www.gstatic.com/fireba
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
 
-function showForm(certificateType) {
-    // Your Firebase configuration
+
+    // Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyDRY1huushmEJq_ubTq6BtGpEwcljiqBH4",
         authDomain: "pantawid-certificate-generator.firebaseapp.com",
@@ -21,16 +21,25 @@ function showForm(certificateType) {
     const auth = getAuth(app);
     const analytics = getAnalytics(app);
 
-    const welcomeEmail = document.getElementById('welcome-email');
-    const generateBtn = document.getElementById('generate-button')
-    const logoutBtn = document.getElementById('logout-btn');
+    // Listen for authentication state changes
+    const welcomeEmail = document.getElementById('username');
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            welcomeEmail.innerText = user.email;
+        } else {
+            window.location.href = "index.html"; // Redirect to login page if not authenticated
+        }
+    });
+
+
+    let generateButtonListenerAdded = false; // Flag to track event listener attachment
     const date = new Date();
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
     const month = monthNames[date.getMonth()];
-    const day = date.getDay();
+    const day = date.getDate();
     const year = date.getFullYear();
     let hours = date.getHours();
     let amPm = hours >= 12 ? 'PM' : 'AM';
@@ -39,15 +48,11 @@ function showForm(certificateType) {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const currentTime = `${hours}:${minutes} ${amPm}`;
 
+    const generateBtn = document.getElementById('generate-button');
 
-    // Listen for authentication state changes
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            welcomeEmail.innerText = user.email;
-        } else {
-            window.location.href = "index.html";  // Redirect to login page if not authenticated
-        }
-    });
+function showForm(certificateType) {
+    const generateBtn = document.getElementById('generate-button');
+    const logoutBtn = document.getElementById('logout-btn');
 
     // Logout functionality
     logoutBtn.addEventListener('click', async () => {
@@ -60,39 +65,6 @@ function showForm(certificateType) {
         }
     });
 
-    function setCertificateType(type) {
-        certificateType = type;  // Update the global variable
-        document.getElementById('formTitle').innerText = `Generate ${type}`;
-    }
-
-
-    generateBtn.addEventListener('click', async function uploadCertificateDetails() {
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const docRef = await addDoc(collection(db, "Generated Certificates"), {
-                        typeOfCertificate: certificateType,
-                        dateGenerated: `${month} ${day}, ${year}`,
-                        timeStamp: currentTime,
-                        attendingOfficer: user.email,
-                        nameOfClient: document.getElementById('full-name').value,
-                        address: document.getElementById('address').value,
-                        birthday: document.getElementById('birthdate').value,
-                        granteeName: document.getElementById('name-of-grantee-field')?.value || "",
-                        granteeAddress: document.getElementById('address-of-grantee-field')?.value || "",
-                        householdID: document.getElementById('hhid-philhealth-field')?.value || ""
-                    });
-                    console.log("Document successfully added with ID: ", docRef.id);
-                } catch (error) {
-                    console.error("Error adding document: ", error);
-                }
-            } else {
-                console.error("User is not authenticated.");
-            }
-        });
-    });
-
     const formTitle = document.getElementById("formTitle");
     const birthdateField = document.getElementById('birthdate-field');
     const natureOfRelationShip = document.getElementById('natureOfRelationship');
@@ -102,6 +74,7 @@ function showForm(certificateType) {
     const hhIdActiveStatus = document.getElementById('hh-id-active-status');
     const dropdownButton = document.getElementById("mainDropDown");
 
+    // Reset form fields
     birthdateField.style.display = 'block';
     natureOfRelationShip.innerHTML = '';
     nameOfGrantee.innerHTML = '';
@@ -109,6 +82,7 @@ function showForm(certificateType) {
     hhIdPhilHealth.innerHTML = '';
     hhIdActiveStatus.innerHTML = '';
 
+    // Update form based on selected certificate type
     if (certificateType === "non_4ps") {
         formTitle.textContent = "Generate Non 4P's Certificate";
         dropdownButton.textContent = "Non 4P's Certificate";
@@ -154,55 +128,137 @@ function showForm(certificateType) {
         formTitle.textContent = "Generate One & Same Certificate";
         dropdownButton.textContent = "One & Same Certificate";
     }
+
+    // Attach event listener for generate button dynamically
+    generateBtn.onclick = () => uploadCertificateDetails(certificateType);
 }
+
+async function uploadCertificateDetails(certificateType) {
+    const generateBtn = document.getElementById('generate-button');
+    generateBtn.disabled = true;
+
+    const relationshipSelect = document.getElementById('relationship-select');
+    let output = relationshipSelect ? relationshipSelect.value : "";
+
+    const user = auth.currentUser;
+
+    if (certificateType === 'non_4ps') {
+        certificateType = 'Non 4ps';
+    } else if(certificateType === 'philhealth'){
+        certificateType = 'Philhealth';
+    } else if(certificateType === 'active_status'){
+        certificateType = 'Active Status';
+    } else if(certificateType === 'one_same'){
+        certificateType = 'One & Same';
+    }
+
+    if (output === 'son-of-the-grantee') {
+        output = 'Son of Grantee';
+    } else if(output === 'grandson-of-the-grantee'){
+        output = 'Grandson of the Grantee'
+    } else if(output === 'son-in-law-of-the-grantee'){
+        output = 'Son in law of the Grantee'
+    } else if(output === 'daughter-of-the-grantee'){
+        output = 'Daughter of the Grantee'
+    } else if(output === 'daughter-in-law-of-the-grantee'){
+        output = 'Daughter of the Grantee'
+    } else if(output === 'husband-of-the-grantee'){
+        output = 'Husband of the Grantee'
+    } else if(output === 'wife-of-the-grantee'){
+        output = 'Wife of the Grantee'
+    } else if(output === 'grantee-himself'){
+        output = 'Grantee Himself'
+    } else if(output === 'grantee-herself'){
+        output = 'Grantee Herself'
+    }
+
+    if (user) {
+        try {
+            const docRef = await addDoc(collection(db, "Generated Certificates"), {
+                typeOfCertificate: certificateType,
+                dateGenerated: `${month} ${day}, ${year}`,
+                timeStamp: currentTime,
+                attendingOfficer: user.email,
+                nameOfClient: document.getElementById('full-name').value,
+                address: document.getElementById('address').value,
+                birthday: document.getElementById('birthdate').value,
+                granteeName: document.getElementById('name-of-grantee-field')?.value || "",
+                granteeAddress: document.getElementById('address-of-grantee-field')?.value || "",
+                philhealthHouseholdID: document.getElementById('hhid-philhealth-field')?.value || "",
+                activeStatusHouseholdID: document.getElementById('hhid-active-status-field').value || "",
+                natureOfRelationShip: output
+            });
+            console.log("Document successfully added with ID: ", docRef.id);
+            alert("Certificate generated successfully!");
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert("Failed to generate the certificate. Please try again.");
+        } finally {
+            generateBtn.disabled = false;
+        }
+    } else {
+        console.error("User is not authenticated.");
+        alert("User is not authenticated.");
+        generateBtn.disabled = false;
+    }
+}
+
 
 function updateDropdownButton(selectElement) {
     const dropdownButton = document.getElementById("dropdownMenuButton");
+    console.log(selectElement.options[selectElement.selectedIndex].text);
+    
     dropdownButton.textContent = selectElement.options[selectElement.selectedIndex].text;
 }
 
-function saveData() {
-    const fullName = document.getElementById("full-name").value;
-    const address = document.getElementById("address").value;
-    const birthdate = document.getElementById("birthdate").value;
-    const certificateType = document.getElementById("formTitle").textContent;
+document.getElementById("generate-button").addEventListener("click", saveData);
 
+
+function saveData() {
+    let fullName = document.getElementById("full-name").value;
+    let address = document.getElementById("address").value;
+    let birthdate = document.getElementById("birthdate").value;
+    let certificateType = document.getElementById("formTitle").textContent;
 
     localStorage.setItem("fullName", fullName);
     localStorage.setItem("address", address);
     localStorage.setItem("birthdate", birthdate);
 
     if (certificateType.includes("Philhealth")) {
-        const nameOfGrantee = document.getElementById('name-of-grantee-field').value;
-        const addressOfGrantee = document.getElementById("address-of-grantee-field").value;
-        const hhIdPhilHealth = document.getElementById("hhid-philhealth-field").value;
+        let nameOfGrantee = document.getElementById('name-of-grantee-field').value;
+        let addressOfGrantee = document.getElementById("address-of-grantee-field").value;
+        let hhIdPhilHealth = document.getElementById("hhid-philhealth-field").value;
+        let relationshipSelect = document.getElementById('relationship-select');
+        let output = relationshipSelect.value;
         localStorage.setItem("nameOfGrantee", nameOfGrantee);
         localStorage.setItem("addressOfGrantee", addressOfGrantee);
         localStorage.setItem("hhIdPhilHealth", hhIdPhilHealth);
+        localStorage.setItem("output", output);
 
         window.open('philhealth.html', '_blank');
     } else if (certificateType.includes("Active Status")) {
-        const hhIdActiveStatus = document.getElementById("hhid-active-status-field").value;
+        let hhIdActiveStatus = document.getElementById("hhid-active-status-field").value;
         localStorage.setItem("hhIdActiveStatus", hhIdActiveStatus);
         window.open('active_status.html', '_blank');
-    } else{
+    } else {
         window.open('non_4ps.html', '_blank');
     }
 }
 
-    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+const isLoggedIn = sessionStorage.getItem('isLoggedIn');
 
-    if (!isLoggedIn) {
-        window.location.replace("index.html");
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', (event) => {
-                const certType = event.currentTarget.getAttribute('data-cert');
-                showForm(certType);
-            });
+if (!isLoggedIn) {
+    window.location.replace("index.html");
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', (event) => {
+            const certType = event.currentTarget.getAttribute('data-cert');
+            showForm(certType);
         });
     });
-    
-    window.saveData = saveData;
-    window.showForm = showForm;
+});
+
+window.saveData = saveData;
+window.showForm = showForm;

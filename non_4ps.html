@@ -138,6 +138,9 @@
                 
             };
             html2pdf().set(options).from(element).save().then(() => {
+                localStorage.removeItem("fullName");
+                localStorage.removeItem("address");
+                localStorage.removeItem("birthdate");
                 // Redirect after PDF download
                 window.close();
             });

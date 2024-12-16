@@ -122,6 +122,7 @@
         const nameOfGrantee = localStorage.getItem("nameOfGrantee");
         const addressOfGrantee = localStorage.getItem("addressOfGrantee");
         const hhIdPhilHealth = localStorage.getItem("hhIdPhilHealth");
+        const natureOfRelationship = localStorage.getItem("output");
         if (birthdate) {
             const birthDateObj = new Date(birthdate);
             const day = birthDateObj.getDate();
@@ -129,7 +130,9 @@
             const year = birthDateObj.getFullYear();
             document.getElementById("client-birthdate").innerText = `${month} ${day}, ${year}`;
         }
-    
+
+
+
         document.getElementById("client-name").innerText = `${fullName}`;
         document.getElementById("client-address").innerText = address;
         document.getElementById("date").innerHTML = date.getDate();
@@ -139,6 +142,27 @@
         document.getElementById("grantee-name").innerText = nameOfGrantee;
         document.getElementById("grantee-address").innerText = addressOfGrantee;
         document.getElementById("grantee-hh-id").innerText = hhIdPhilHealth;
+        // document.getElementById("client-nature-of-relationship").innerText = natureOfRelationship;
+
+        if (natureOfRelationship === 'son-of-the-grantee') {
+            document.getElementById("client-nature-of-relationship").innerText = 'Son of the Grantee'
+        } else if(natureOfRelationship === 'grandson-of-the-grantee'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Grandson of the Grantee'
+        } else if (natureOfRelationship === 'son-in-law-of-the-grantee'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Son in law of the Grantee'
+        } else if (natureOfRelationship === 'daughter-of-the-grantee'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Daughter of the Grantee'
+        } else if (natureOfRelationship === 'daughter-in-law-of-the-grantee'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Daughter in law of the Grantee'
+        } else if (natureOfRelationship === 'husband-of-the-grantee'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Husband of the Grantee'
+        } else if (natureOfRelationship === 'wife-of-the-grantee'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Wife of the Grantee'
+        } else if (natureOfRelationship === 'grantee-himself'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Grantee Himself'
+        } else if (natureOfRelationship === 'grantee-herself'){
+            document.getElementById("client-nature-of-relationship").innerText = 'Grantee Herself'
+        }
 
     
         // Function to generate PDF
@@ -154,6 +178,13 @@
                 
             };
             html2pdf().set(options).from(element).save().then(() => {
+                localStorage.removeItem("fullName");
+                localStorage.removeItem("address");
+                localStorage.removeItem("birthdate");
+                localStorage.removeItem("nameOfGrantee");
+                localStorage.removeItem("addressOfGrantee");
+                localStorage.removeItem("hhIdPhilHealth");
+                localStorage.removeItem("output");
                 // Redirect after PDF download
                 window.close();
             });

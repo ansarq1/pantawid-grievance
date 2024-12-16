@@ -1,121 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Form</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="resources/styles/dashboard.css">
     <link
-      rel="shortcut icon"
-      href="resources/images/pantawid-logo.png"
-      type="image/x-icon"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
-    <link rel="stylesheet" href="resources/styles/generate.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <style>
-        body {
-            background-color: #f7f9fc;
-        }
-        .header {
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
-        }
-        .header img {
-            height: 40px;
-        }
-        .dropdown-toggle {
-            min-width: 250px;
-        }
-        .card {
-            border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-label {
-            font-weight: bold;
-        }
-        .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 5px rgba(13, 110, 253, 0.25);
-        }
-        .btn-primary {
-            background-color: #0d6efd;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #084298;
-        }
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
 
-        #relationship-select{
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body class="d-flex flex-column align-items-center justify-content-center" style="height: 100vh;">
-    <div class="fixed-top header d-flex flex-row justify-content-around align-items-center">
-        <img src="resources/images/pantawid-logo.png" alt="Logo">
-        <p class="h3 text-primary">Grievance Desk Certificate Generator</p>
-        <div class="welcome-logout-container">
-            <p id="welcome-email">Email</p>
-            <button class="btn btn-danger btn-sm" id="logout-btn">Logout</button>
+    <title>Generate Certificate</title>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+          <img src="resources/images/pantawid-logo.png" alt="Pantawid Logo" />
+          <h2>Pantawid System Unit</h2>
         </div>
-    </div>
-    <div class="container d-flex flex-column align-items-center mt-5">
-        <!-- Dropdown to select certificate type -->
-        <div class="dropdown d-flex justify-content-center mb-3">
-            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="mainDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Select Certificate to Generate
-            </button>
-            <div class="dropdown-menu" aria-labelledby="mainDropDown">
-                <a class="dropdown-item" href="#" data-cert="non_4ps">Non 4P's Certificate</a>
-                <a class="dropdown-item" href="#" data-cert="philhealth">Philhealth Certificate</a>
-                <a class="dropdown-item" href="#" data-cert="active_status">Active Status</a>
-                <a class="dropdown-item" href="#" data-cert="one_same">One & Same</a>
+        <button class="toggle-btn" id="toggle-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <hr class="divider" />
+        <nav class="sidebar-menu">
+          <ul>
+            <li>
+              <a href="dashboard.html"
+                ><i class="fas fa-home"></i><span>Dashboard</span></a
+              >
+            </li>
+            <li>
+              <a href="generate.html"
+                ><i class="fa-regular fa-file-zipper"></i><span>Generate Certificate</span></a
+              >
+            </li>
+            <li>
+              <a id="logout-btn"
+                ><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a
+              >
+            </li>
+          </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="dashboard-header">
+          <div class="welcome-message">
+            <h1>Welcome, <span id="username">Loading...</span></h1>
+            <p>Generate Certificate</p>
+          </div>
+        </header>
+        <div class="container d-flex flex-column align-items-center mt-5">
+            <!-- Dropdown to select certificate type -->
+            <div class="dropdown d-flex justify-content-center mb-3">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="mainDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select Certificate to Generate
+                </button>
+                <div class="dropdown-menu" aria-labelledby="mainDropDown">
+                    <a class="dropdown-item" href="#" data-cert="non_4ps">Non 4P's Certificate</a>
+                    <a class="dropdown-item" href="#" data-cert="philhealth">Philhealth Certificate</a>
+                    <a class="dropdown-item" href="#" data-cert="active_status">Active Status</a>
+                    <a class="dropdown-item" href="#" data-cert="one_same">One & Same</a>
+                </div>
+            </div>
+    
+            <!-- Form container -->
+            <div class="card shadow-lg w-100 mb-5" style="max-width: 600px;">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4" id="formTitle">Generate Certificate</h3>
+                    <form id="dataForm">
+                        <!-- Common Fields -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="full-name" class="form-label">Full Name:</label>
+                                <input type="text" placeholder="Enter Full Name" class="form-control" id="full-name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="address" class="form-label">Address:</label> 
+                                <input type="text" class="form-control" id="address" placeholder="Enter Address" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-13 mb-3" id="birthdate-field">
+                                <label for="birthdate" class="form-label">Birthday:</label>
+                                <input type="date" class="form-control" id="birthdate" required>
+                            </div>
+                            <div class="col-md-6 mb-3" id="hh-id-active-status"></div>
+                        </div>
+    
+                        <!-- Certificate-specific Fields -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="name-of-grantee"></div>
+                            <div class="col-md-6 mb-3" id="natureOfRelationship"></div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="address-of-grantee"></div>
+                            <div class="col-md-6 mb-3" id="hh-id-philhealth"></div>
+                        </div>
+    
+                        <button type="button" class="btn btn-primary w-100 fw-bold" onclick="saveData()" id="generate-button">Submit</button>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <!-- Form container -->
-        <div class="card shadow-lg w-100" style="max-width: 600px;">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-4" id="formTitle">Generate Certificate</h3>
-                <form id="dataForm">
-                    <!-- Common Fields -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="full-name" class="form-label">Full Name:</label>
-                            <input type="text" placeholder="Enter Full Name" class="form-control" id="full-name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="address" class="form-label">Address:</label> 
-                            <input type="text" class="form-control" id="address" placeholder="Enter Address" required>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-13 mb-3" id="birthdate-field">
-                            <label for="birthdate" class="form-label">Birthday:</label>
-                            <input type="date" class="form-control" id="birthdate" required>
-                        </div>
-                        <div class="col-md-6 mb-3" id="hh-id-active-status"></div>
-                    </div>
-
-                    <!-- Certificate-specific Fields -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3" id="name-of-grantee"></div>
-                        <div class="col-md-6 mb-3" id="natureOfRelationship"></div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3" id="address-of-grantee"></div>
-                        <div class="col-md-6 mb-3" id="hh-id-philhealth"></div>
-                    </div>
-
-                    <button type="button" class="btn btn-primary w-100 fw-bold" onclick="saveData()" id="generate-button">Submit</button>
-                </form>
-            </div>
-        </div>
+      </main>
     </div>
 
     <script type="module" src="resources/js/generate.js"></script>
-</body>
+  </body>
 </html>
