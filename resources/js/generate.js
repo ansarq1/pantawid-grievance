@@ -185,7 +185,7 @@ async function uploadCertificateDetails(certificateType) {
                 granteeName: document.getElementById('name-of-grantee-field')?.value || "",
                 granteeAddress: document.getElementById('address-of-grantee-field')?.value || "",
                 philhealthHouseholdID: document.getElementById('hhid-philhealth-field')?.value || "",
-                activeStatusHouseholdID: document.getElementById('hhid-active-status-field').value || "",
+                activeStatusHouseholdID: document.getElementById('hhid-active-status-field')?.value || "",
                 natureOfRelationShip: output
             });
             console.log("Document successfully added with ID: ", docRef.id);

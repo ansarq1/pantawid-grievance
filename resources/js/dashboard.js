@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
 
@@ -38,7 +38,6 @@ async function countTotalGeneratedCertificates() {
     });
 }
 
-// Fetch and display certificates
 function fetchCertificates() {
     const searchBar = document.getElementById("search-bar");
     const pageSize = 5; // Number of certificates per page
@@ -62,7 +61,7 @@ function fetchCertificates() {
                 <td>${certificate.dateGenerated}</td>
                 <td>${certificate.timeStamp}</td>
                 <td>${certificate.typeOfCertificate}</td>
-            `;
+            `;  
             row.addEventListener("click", () => showCertificateDetails(certificate));
             certificatesTbody.appendChild(row);
         });
@@ -78,6 +77,13 @@ function fetchCertificates() {
             id: doc.id,
             ...doc.data(),
         }));
+
+        // Sort certificates by timeStamp or dateGenerated in descending order
+        certificates.sort((a, b) => {
+            const dateA = new Date(a.timeStamp || a.dateGenerated);
+            const dateB = new Date(b.timeStamp || b.dateGenerated);
+            return dateB - dateA; // Descending order
+        });
 
         // Initial display of certificates for the first page
         displayCertificates(certificates);
@@ -115,22 +121,25 @@ function fetchCertificates() {
     });
 }
 
+
+
 // Show certificate details in a modal
 function showCertificateDetails(certificate) {
     const detailsContainer = document.getElementById('certificate-details');
     if (certificate.typeOfCertificate === 'Philhealth') {
         detailsContainer.innerHTML = `
         <p><strong>Client Name:</strong> ${certificate.nameOfClient}</p>
+        <p><strong>Address:</strong> ${certificate.address}</p>
         <p><strong>Attending Officer:</strong> ${certificate.attendingOfficer}</p>
         <p><strong>Date Generated:</strong> ${certificate.dateGenerated}, ${certificate.timeStamp}</p>
         <p><strong>Type of Certificate:</strong> ${certificate.typeOfCertificate}</p>
         <p><strong>Name Of Grantee:</strong> ${certificate.granteeName}</p>
         <p><strong>Address of Grantee:</strong> ${certificate.granteeAddress}</p>
-        <p><strong>Household ID:</strong> ${certificate.householdID}</p>
+        <p><strong>Household ID:</strong> ${certificate.philhealthHouseholdID}</p>
         <p><strong>Nature of Relationship:</strong> ${certificate.natureOfRelationShip}</p>
 
     `;
-    } else if(certificate.typeOfCertificate === 'Active Status'){
+    } else if (certificate.typeOfCertificate === 'Active Status'){
         detailsContainer.innerHTML = `
         <p><strong>Client Name:</strong> ${certificate.nameOfClient}</p>
         <p><strong>Attending Officer:</strong> ${certificate.attendingOfficer}</p>
@@ -138,19 +147,132 @@ function showCertificateDetails(certificate) {
         <p><strong>Type of Certificate:</strong> ${certificate.typeOfCertificate}</p>
         <p><strong>Household ID:</strong> ${certificate.activeStatusHouseholdID}</p>
     `;
-    } else if(certificate.typeOfCertificate === 'Non 4ps'){
+    } else if (certificate.typeOfCertificate === 'Non 4ps'){
         detailsContainer.innerHTML = `
         <p><strong>Client Name:</strong> ${certificate.nameOfClient}</p>
         <p><strong>Attending Officer:</strong> ${certificate.attendingOfficer}</p>
         <p><strong>Date Generated:</strong> ${certificate.dateGenerated}, ${certificate.timeStamp}</p>
         <p><strong>Type of Certificate:</strong> ${certificate.typeOfCertificate}</p>
-        <p><strong>Household ID:</strong> ${certificate.birthday}</p>
+        <p><strong>Birthday:</strong> ${certificate.birthday}</p>
     `;
     }
     const modal = new bootstrap.Modal(document.getElementById("Modal"), {
         keyboard: false,
     });
     modal.show();
+}
+
+document.getElementById("generateReportBtn").addEventListener("click", generateEnhancedReport);
+
+async function generateEnhancedReport() {
+    const certificatesSnapshot = await getDocs(collection(db, "Generated Certificates"));
+    const allCertificates = certificatesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+
+    const reportData = allCertificates.map((certificate, index) => [
+        index + 1,
+        certificate.attendingOfficer || "N/A",
+        certificate.nameOfClient || "N/A",
+        certificate.birthday || "N/A",
+        certificate.dateGenerated || "N/A",
+        certificate.timeStamp || "N/A",
+        certificate.typeOfCertificate || "N/A",
+        certificate.address || "N/A",
+        certificate.granteeName || "N/A",
+        certificate.granteeAddress || "N/A",
+        certificate.philhealthHouseholdID || "N/A",
+        certificate.activeStatusHouseholdID || "N/A",
+    ]);
+
+    const headers = [
+        ["Generated Certificates Report"],
+        ["Generated on: " + new Date().toLocaleString()],
+        [],
+        ["#", "Attending Officer", "Client Name", "Birthday", "Date Generated", "Time Stamp", "Type of Certificate", "Address", "Grantee Name", "Grantee Address", "Philhealth Household ID", "Active Status Household ID"],
+    ];
+
+    const combinedData = [...headers, ...reportData];
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(combinedData);
+
+    // Auto-adjust column widths
+    const maxLengths = combinedData.reduce((acc, row) => {
+        row.forEach((cell, colIdx) => {
+            acc[colIdx] = Math.max(acc[colIdx] || 0, (cell ? cell.toString().length : 0));
+        });
+        return acc;
+    }, []);
+    worksheet["!cols"] = maxLengths.map((len) => ({ wch: Math.min(30, len + 5) }));
+
+    // Merge and style the title
+    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 11 } }];
+    if (!worksheet["A1"]) worksheet["A1"] = {}; // Initialize cell if undefined
+    worksheet["A1"].s = {
+        font: { bold: true, sz: 24, color: { rgb: "333333" } },
+        alignment: { horizontal: "center", vertical: "center" },
+    };
+
+    // Style the headers
+    const headerRowIndex = 3;
+    for (let col = 0; col <= 11; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: headerRowIndex, c: col });
+        if (!worksheet[cellAddress]) worksheet[cellAddress] = {};
+        worksheet[cellAddress].s = {
+            font: { bold: true, color: { rgb: "FFFFFF" } },
+            fill: { fgColor: { rgb: "4F81BD" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } },
+            },
+        };
+    }
+
+    // Add zebra striping for rows
+    for (let row = 4; row < combinedData.length; row++) {
+        const isEvenRow = row % 2 === 0;
+        for (let col = 0; col <= 11; col++) {
+            const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+            if (!worksheet[cellAddress]) worksheet[cellAddress] = {};
+            worksheet[cellAddress].s = {
+                font: { name: "Calibri", sz: 11 },
+                alignment: { horizontal: col === 0 ? "right" : "left" },
+                fill: isEvenRow ? { fgColor: { rgb: "F9F9F9" } } : undefined,
+                border: {
+                    top: { style: "thin", color: { rgb: "CCCCCC" } },
+                    bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+                    left: { style: "thin", color: { rgb: "CCCCCC" } },
+                    right: { style: "thin", color: { rgb: "CCCCCC" } },
+                },
+            };
+        }
+    }
+
+    // Format date columns
+    const dateColumns = [3, 4, 5]; // Adjust indexes for date columns
+    for (let row = 4; row < combinedData.length; row++) {
+        dateColumns.forEach((col) => {
+            const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+            if (worksheet[cellAddress] && worksheet[cellAddress].v !== "N/A") {
+                worksheet[cellAddress].z = "mm/dd/yyyy"; // Date format
+            }
+        });
+    }
+
+    // Freeze the header row
+    worksheet["!freeze"] = { xSplit: 0, ySplit: 4 };
+
+    // Enable filters on headers
+    worksheet["!autofilter"] = { ref: "A4:L4" };
+
+    // Add the sheet and save the file
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Generated Certificates");
+    XLSX.writeFile(workbook, `GeneratedCertificatesReport_${Date.now()}.xlsx`);
 }
 
 // Logout functionality
