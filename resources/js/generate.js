@@ -223,26 +223,37 @@ function saveData() {
     localStorage.setItem("fullName", fullName);
     localStorage.setItem("address", address);
     localStorage.setItem("birthdate", birthdate);
+    let user = auth.currentUser;
 
-    if (certificateType.includes("Philhealth")) {
-        let nameOfGrantee = document.getElementById('name-of-grantee-field').value;
-        let addressOfGrantee = document.getElementById("address-of-grantee-field").value;
-        let hhIdPhilHealth = document.getElementById("hhid-philhealth-field").value;
-        let relationshipSelect = document.getElementById('relationship-select');
-        let output = relationshipSelect.value;
-        localStorage.setItem("nameOfGrantee", nameOfGrantee);
-        localStorage.setItem("addressOfGrantee", addressOfGrantee);
-        localStorage.setItem("hhIdPhilHealth", hhIdPhilHealth);
-        localStorage.setItem("output", output);
-
-        window.open('philhealth.html', '_blank');
-    } else if (certificateType.includes("Active Status")) {
-        let hhIdActiveStatus = document.getElementById("hhid-active-status-field").value;
-        localStorage.setItem("hhIdActiveStatus", hhIdActiveStatus);
-        window.open('active_status.html', '_blank');
+    if (user) {
+        try {
+            if (certificateType.includes("Philhealth")) {
+                let nameOfGrantee = document.getElementById('name-of-grantee-field').value;
+                let addressOfGrantee = document.getElementById("address-of-grantee-field").value;
+                let hhIdPhilHealth = document.getElementById("hhid-philhealth-field").value;
+                let relationshipSelect = document.getElementById('relationship-select');
+                let output = relationshipSelect.value;
+                localStorage.setItem("nameOfGrantee", nameOfGrantee);
+                localStorage.setItem("addressOfGrantee", addressOfGrantee);
+                localStorage.setItem("hhIdPhilHealth", hhIdPhilHealth);
+                localStorage.setItem("output", output);
+        
+                window.open('philhealth.html', '_blank');
+            } else if (certificateType.includes("Active Status")) {
+                let hhIdActiveStatus = document.getElementById("hhid-active-status-field").value;
+                localStorage.setItem("hhIdActiveStatus", hhIdActiveStatus);
+                window.open('active_status.html', '_blank');
+            } else {
+                window.open('non_4ps.html', '_blank');
+            }
+        } catch (e) {
+            alert("Failed to generate the certificate. Please try again.");
+        }
     } else {
-        window.open('non_4ps.html', '_blank');
+        console.error("User is not authenticated.");
+        alert("User is not authenticated.");
     }
+    
 }
 
 const isLoggedIn = sessionStorage.getItem('isLoggedIn');

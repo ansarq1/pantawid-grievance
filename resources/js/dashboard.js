@@ -61,7 +61,7 @@ function fetchCertificates() {
                 <td>${certificate.dateGenerated}</td>
                 <td>${certificate.timeStamp}</td>
                 <td>${certificate.typeOfCertificate}</td>
-            `;  
+            `;
             row.addEventListener("click", () => showCertificateDetails(certificate));
             certificatesTbody.appendChild(row);
         });
@@ -78,12 +78,8 @@ function fetchCertificates() {
             ...doc.data(),
         }));
 
-        // Sort certificates by timeStamp or dateGenerated in descending order
-        certificates.sort((a, b) => {
-            const dateA = new Date(a.timeStamp || a.dateGenerated);
-            const dateB = new Date(b.timeStamp || b.dateGenerated);
-            return dateB - dateA; // Descending order
-        });
+        // Sort certificates by dateGenerated in descending order
+        certificates.sort((a, b) => new Date(b.dateGenerated) - new Date(a.dateGenerated));
 
         // Initial display of certificates for the first page
         displayCertificates(certificates);
@@ -120,6 +116,7 @@ function fetchCertificates() {
         }
     });
 }
+
 
 
 
