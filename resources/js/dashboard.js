@@ -284,7 +284,7 @@ async function generateEnhancedReport() {
     worksheet["!freeze"] = { xSplit: 0, ySplit: 4 };
 
     // Enable filters on headers
-    worksheet["!autofilter"] = { ref: "A4:L4" };
+    worksheet["!autofilter"] = { ref: "A4:M4" };
 
     // Add the sheet and save the file
     XLSX.utils.book_append_sheet(workbook, worksheet, "Generated Certificates");
