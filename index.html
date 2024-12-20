@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-    <div id="loading-overlay">
+    <div id="loading-overlay" style="display: none;">
       <div class="loader"></div>
     </div>
     <script src="resources/js/index.js"></script>
@@ -70,6 +70,7 @@
         const analytics = getAnalytics(app);
 
         const lgnBtn = document.getElementById("lgn-btn");
+        const loadingOverlay = document.getElementById("loading-overlay");
 
         lgnBtn.addEventListener("click", async () => {
           const email = document.getElementById("email-input").value.trim();
@@ -80,15 +81,17 @@
             return;
           }
 
+          loadingOverlay.style.display = "flex";
+
           try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             alert(`Welcome back, ${user.email}!`);
             // Redirect to another page after successful login
             setTimeout(() => {
-                          sessionStorage.setItem("isLoggedIn", "true");
-                          window.location.replace("dashboard.html");
-                        }, 1000);
+              sessionStorage.setItem("isLoggedIn", "true");
+              window.location.replace("dashboard.html");
+            }, 1000);
           } catch (error) {
             if (error === 'FirebaseError: Firebase: Error (auth/network-request-failed)') {
               alert('Network Error')
@@ -96,15 +99,15 @@
               console.log(`${error}`);
               alert(`${error}`)
             }
+          } finally {
+            loadingOverlay.style.display = "none";
           }
         });
 
-  // Redirect to dashboard if already logged in
-    if (sessionStorage.getItem("isLoggedIn")) {
+        // Redirect to dashboard if already logged in
+        if (sessionStorage.getItem("isLoggedIn")) {
           window.location.href = "dashboard.html";
-    }
-
-
+        }
     </script>
   </body>
 </html>

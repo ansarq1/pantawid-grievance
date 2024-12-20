@@ -39,10 +39,14 @@ async function countTotalGeneratedCertificates() {
 }
 
 function fetchCertificates() {
+    const loadingOverlay = document.getElementById("loading-overlay");
     const searchBar = document.getElementById("search-bar");
     const pageSize = 5; // Number of certificates per page
     let currentPage = 1; // Start on the first page
     let certificates = []; // Store fetched certificates
+
+    // Show the loading overlay
+    loadingOverlay.style.display = "flex";
 
     // Function to display certificates based on the current page
     function displayCertificates(filteredCertificates) {
@@ -51,56 +55,72 @@ function fetchCertificates() {
         const paginatedCertificates = filteredCertificates.slice(startIndex, endIndex);
 
         const certificatesTbody = document.getElementById("certificates-tbody");
-        certificatesTbody.innerHTML = "";
-        paginatedCertificates.forEach((certificate, index) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${startIndex + index + 1}</td>
-                <td>${certificate.attendingOfficer}</td>
-                <td>${certificate.nameOfClient}</td>
-                <td>${certificate.dateGenerated}</td>
-                <td>${certificate.timeStamp}</td>
-                <td>${certificate.typeOfCertificate}</td>
-            `;
-            row.addEventListener("click", () => showCertificateDetails(certificate));
-            certificatesTbody.appendChild(row);
-        });
+        certificatesTbody.innerHTML = ""; // Clear existing rows
 
-        // Update pagination controls
-        document.getElementById("pageIndicator").textContent = `Page ${currentPage}`;
-        document.getElementById("prevPage").disabled = currentPage === 1;
-        document.getElementById("nextPage").disabled = endIndex >= filteredCertificates.length;
+        try {
+            paginatedCertificates.forEach((certificate, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${startIndex + index + 1}</td>
+                    <td>${certificate.attendingOfficer || "N/A"}</td>
+                    <td>${certificate.nameOfClient || "N/A"}</td>
+                    <td>${certificate.dateGenerated || "N/A"}</td>
+                    <td>${certificate.timeStamp || "N/A"}</td>
+                    <td>${certificate.typeOfCertificate || "N/A"}</td>
+                `;
+                row.addEventListener("click", () => showCertificateDetails(certificate));
+                certificatesTbody.appendChild(row);
+            });
+
+            // Update pagination controls
+            document.getElementById("pageIndicator").textContent = `Page ${currentPage}`;
+            document.getElementById("prevPage").disabled = currentPage === 1;
+            document.getElementById("nextPage").disabled = endIndex >= filteredCertificates.length;
+        } catch (error) {
+            console.error("Error displaying certificates:", error);
+            alert("Error displaying certificates. Please try again.");
+        }
     }
 
-    onSnapshot(collection(db, "Generated Certificates"), (snapshot) => {
-        certificates = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+    // Fetch certificates from Firestore
+    try {
+        onSnapshot(collection(db, "Generated Certificates"), (snapshot) => {
+            certificates = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
 
-        // Sort certificates by dateGenerated in descending order
-        certificates.sort((a, b) => new Date(b.dateGenerated) - new Date(a.dateGenerated));
+            // Sort certificates by dateGenerated in descending order
+            certificates.sort((a, b) => new Date(b.dateGenerated) - new Date(a.dateGenerated));
 
-        // Initial display of certificates for the first page
-        displayCertificates(certificates);
+            // Initial display of certificates
+            displayCertificates(certificates);
 
-        // Filter certificates on search
-        searchBar.addEventListener("input", (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredCertificates = certificates.filter((certificate) =>
-                (certificate.nameOfClient &&
-                    certificate.nameOfClient.toLowerCase().includes(searchTerm)) ||
-                (certificate.attendingOfficer &&
-                    certificate.attendingOfficer.toLowerCase().includes(searchTerm)) ||
-                (certificate.typeOfCertificate &&
-                    certificate.typeOfCertificate.toLowerCase().includes(searchTerm))
-            );
-            currentPage = 1; // Reset to first page on new search
-            displayCertificates(filteredCertificates);
+            // Hide the loading overlay after rendering
+            loadingOverlay.style.display = "none";
+
+            // Add search functionality
+            searchBar.addEventListener("input", (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredCertificates = certificates.filter((certificate) =>
+                    (certificate.nameOfClient &&
+                        certificate.nameOfClient.toLowerCase().includes(searchTerm)) ||
+                    (certificate.attendingOfficer &&
+                        certificate.attendingOfficer.toLowerCase().includes(searchTerm)) ||
+                    (certificate.typeOfCertificate &&
+                        certificate.typeOfCertificate.toLowerCase().includes(searchTerm))
+                );
+                currentPage = 1; // Reset to the first page on new search
+                displayCertificates(filteredCertificates);
+            });
         });
-    });
+    } catch (error) {
+        console.error("Error fetching certificates:", error);
+        alert("Failed to fetch certificates. Please try again.");
+        loadingOverlay.style.display = "none"; // Ensure it's hidden on error
+    }
 
-    // Pagination control event listeners
+    // Pagination controls
     document.getElementById("prevPage").addEventListener("click", () => {
         if (currentPage > 1) {
             currentPage--;
@@ -116,8 +136,6 @@ function fetchCertificates() {
         }
     });
 }
-
-
 
 
 // Show certificate details in a modal
