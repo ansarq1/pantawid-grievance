@@ -197,6 +197,7 @@ async function generateEnhancedReport() {
         certificate.address || "N/A",
         certificate.granteeName || "N/A",
         certificate.granteeAddress || "N/A",
+        certificate.natureOfRelationShip || "N/A",
         certificate.philhealthHouseholdID || "N/A",
         certificate.activeStatusHouseholdID || "N/A",
     ]);
@@ -205,7 +206,7 @@ async function generateEnhancedReport() {
         ["Generated Certificates Report"],
         ["Generated on: " + new Date().toLocaleString()],
         [],
-        ["#", "Attending Officer", "Client Name", "Birthday", "Date Generated", "Time Stamp", "Type of Certificate", "Address", "Grantee Name", "Grantee Address", "Philhealth Household ID", "Active Status Household ID"],
+        ["#", "Attending Officer", "Client Name", "Birthday", "Date Generated", "Time Stamp", "Type of Certificate", "Address", "Grantee Name", "Grantee Address", "Nature of Relationship", "Philhealth Household ID", "Active Status Household ID"],
     ];
 
     const combinedData = [...headers, ...reportData];
