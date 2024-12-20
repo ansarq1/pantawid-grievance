@@ -100,6 +100,7 @@ function showForm(certificateType) {
                 <option value="son-of-the-grantee">Son of the Grantee</option>
                 <option value="grandson-of-the-grantee">Grandson of the Grantee</option>
                 <option value="son-in-law-of-the-grantee">Son-in-law of the Grantee</option>
+                <option value="grandaughter-of-the-grantee">Grandaughter of the Grantee</option>
                 <option value="daughter-of-the-grantee">Daughter of the Grantee</option>
                 <option value="daughter-in-law-of-the-grantee">Daughter-in-law of the Grantee</option>
                 <option value="husband-of-the-grantee">Husband of the Grantee</option>
@@ -144,37 +145,39 @@ async function uploadCertificateDetails(certificateType) {
 
     if (certificateType === 'non_4ps') {
         certificateType = 'Non 4ps';
-    } else if(certificateType === 'philhealth'){
+    } else if (certificateType === 'philhealth') {
         certificateType = 'Philhealth';
-    } else if(certificateType === 'active_status'){
+    } else if (certificateType === 'active_status') {
         certificateType = 'Active Status';
-    } else if(certificateType === 'one_same'){
+    } else if (certificateType === 'one_same') {
         certificateType = 'One & Same';
     }
 
     if (output === 'son-of-the-grantee') {
-        output = 'Son of Grantee';
-    } else if(output === 'grandson-of-the-grantee'){
-        output = 'Grandson of the Grantee'
-    } else if(output === 'son-in-law-of-the-grantee'){
-        output = 'Son in law of the Grantee'
-    } else if(output === 'daughter-of-the-grantee'){
-        output = 'Daughter of the Grantee'
-    } else if(output === 'daughter-in-law-of-the-grantee'){
-        output = 'Daughter of the Grantee'
-    } else if(output === 'husband-of-the-grantee'){
-        output = 'Husband of the Grantee'
-    } else if(output === 'wife-of-the-grantee'){
-        output = 'Wife of the Grantee'
-    } else if(output === 'grantee-himself'){
-        output = 'Grantee Himself'
-    } else if(output === 'grantee-herself'){
-        output = 'Grantee Herself'
+        output = 'Son of the Grantee';
+    } else if (output === 'grandson-of-the-grantee') {
+        output = 'Grandson of the Grantee';
+    } else if (output === 'son-in-law-of-the-grantee') {
+        output = 'Son in Law of the Grantee';
+    } else if (output === 'daughter-of-the-grantee') {
+        output = 'Daughter of the Grantee';
+    } else if (output === 'grandaughter-of-the-grantee') {
+        output = 'Grandaughter of the Grantee';
+    }else if (output === 'daughter-in-law-of-the-grantee') {
+        output = 'Daughter in Law of the Grantee';
+    } else if (output === 'husband-of-the-grantee') {
+        output = 'Husband of the Grantee';
+    } else if (output === 'wife-of-the-grantee') {
+        output = 'Wife of the Grantee';
+    } else if (output === 'grantee-himself') {
+        output = 'Grantee Himself';
+    } else if (output === 'grantee-herself') {
+        output = 'Grantee Herself';
     }
 
     if (user) {
         try {
-            const docRef = await addDoc(collection(db, "Generated Certificates"), {
+            await addDoc(collection(db, "Generated Certificates"), {
                 typeOfCertificate: certificateType,
                 dateGenerated: `${month} ${day}, ${year}`,
                 timeStamp: currentTime,
@@ -188,8 +191,9 @@ async function uploadCertificateDetails(certificateType) {
                 activeStatusHouseholdID: document.getElementById('hhid-active-status-field')?.value || "",
                 natureOfRelationShip: output
             });
-            console.log("Document successfully added with ID: ", docRef.id);
+            console.log("Document successfully added.");
             alert("Certificate generated successfully!");
+            resetFormFields(); // Clear the form fields
         } catch (error) {
             console.error("Error adding document: ", error);
             alert("Failed to generate the certificate. Please try again.");
@@ -202,6 +206,7 @@ async function uploadCertificateDetails(certificateType) {
         generateBtn.disabled = false;
     }
 }
+
 
 
 function updateDropdownButton(selectElement) {
@@ -246,6 +251,7 @@ function saveData() {
             } else {
                 window.open('non_4ps.html', '_blank');
             }
+            resetFormFields(); // Clear the form fields
         } catch (e) {
             alert("Failed to generate the certificate. Please try again.");
         }
@@ -253,8 +259,31 @@ function saveData() {
         console.error("User is not authenticated.");
         alert("User is not authenticated.");
     }
-    
 }
+
+
+function resetFormFields() {
+    document.getElementById("full-name").value = "";
+    document.getElementById("address").value = "";
+    document.getElementById("birthdate").value = "";
+    if (document.getElementById("name-of-grantee-field")) {
+        document.getElementById("name-of-grantee-field").value = "";
+    }
+    if (document.getElementById("address-of-grantee-field")) {
+        document.getElementById("address-of-grantee-field").value = "";
+    }
+    if (document.getElementById("hhid-philhealth-field")) {
+        document.getElementById("hhid-philhealth-field").value = "";
+    }
+    if (document.getElementById("hhid-active-status-field")) {
+        document.getElementById("hhid-active-status-field").value = "";
+    }
+    const relationshipSelect = document.getElementById("relationship-select");
+    if (relationshipSelect) {
+        relationshipSelect.value = "";
+    }
+}
+
 
 const isLoggedIn = sessionStorage.getItem('isLoggedIn');
 
