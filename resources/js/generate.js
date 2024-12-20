@@ -31,7 +31,12 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase
         }
     });
 
+    const loadingOverlay = document.getElementById("loading-overlay");
+    loadingOverlay.style.display = 'flex';
 
+    window.addEventListener('load', () => {
+        loadingOverlay.style.display = 'none';
+    });
     let generateButtonListenerAdded = false; // Flag to track event listener attachment
     const date = new Date();
     const monthNames = [
@@ -206,8 +211,6 @@ async function uploadCertificateDetails(certificateType) {
         generateBtn.disabled = false;
     }
 }
-
-
 
 function updateDropdownButton(selectElement) {
     const dropdownButton = document.getElementById("dropdownMenuButton");
